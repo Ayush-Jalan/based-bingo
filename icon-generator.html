@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Based Bingo Icon Generator</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      background: #1a1a1a;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    h1 {
+      color: white;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .instructions {
+      background: #2a2a2a;
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 40px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .instructions h2 {
+      margin-top: 0;
+      color: #0052FF;
+    }
+
+    .instructions ol {
+      line-height: 1.8;
+    }
+
+    .container {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .icon-card {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      text-align: center;
+    }
+
+    .icon-card h2 {
+      margin: 0 0 20px 0;
+      color: #333;
+      font-size: 18px;
+    }
+
+    .icon-512 {
+      width: 512px;
+      height: 512px;
+      background: linear-gradient(135deg, #0052FF 0%, #0046E0 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(0, 82, 255, 0.3);
+    }
+
+    .splash-1200 {
+      width: 1200px;
+      height: 630px;
+      background: linear-gradient(135deg, #0052FF 0%, #0046E0 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 82, 255, 0.3);
+    }
+
+    .icon-text {
+      color: white;
+      font-size: 120px;
+      font-weight: 900;
+      letter-spacing: 8px;
+      text-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      margin: 0;
+    }
+
+    .icon-subtitle {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 24px;
+      font-weight: 600;
+      margin-top: 16px;
+    }
+
+    .splash-text {
+      color: white;
+      font-size: 180px;
+      font-weight: 900;
+      letter-spacing: 16px;
+      text-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      margin: 0;
+    }
+
+    .splash-subtitle {
+      color: rgba(255, 255, 255, 0.95);
+      font-size: 42px;
+      font-weight: 600;
+      margin-top: 24px;
+      letter-spacing: 2px;
+    }
+
+    .download-btn {
+      margin-top: 20px;
+      padding: 12px 32px;
+      background: #0052FF;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .download-btn:hover {
+      background: #0046E0;
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 1400px) {
+      .splash-1200 {
+        width: 600px;
+        height: 315px;
+      }
+      .splash-text {
+        font-size: 90px;
+        letter-spacing: 8px;
+      }
+      .splash-subtitle {
+        font-size: 21px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .icon-512 {
+        width: 320px;
+        height: 320px;
+      }
+      .icon-text {
+        font-size: 75px;
+      }
+      .icon-subtitle {
+        font-size: 16px;
+      }
+      .splash-1200 {
+        width: 400px;
+        height: 210px;
+      }
+      .splash-text {
+        font-size: 60px;
+      }
+      .splash-subtitle {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Based Bingo Icon Generator</h1>
+
+  <div class="instructions">
+    <h2>📸 How to Use:</h2>
+    <ol>
+      <li>Scroll down to see the icon (512x512) and splash (1200x630) previews</li>
+      <li>Right-click on each image and select "Save Image As..."</li>
+      <li>For the icon: Save as <code>icon.png</code></li>
+      <li>For the splash: Save as <code>splash.png</code></li>
+      <li>Place both images in your project root directory</li>
+      <li>Run <code>npm run build</code> and redeploy to Vercel</li>
+    </ol>
+    <p><strong>Alternative:</strong> Click the "Download" buttons below each image (though right-click works better for exact dimensions)</p>
+  </div>
+
+  <div class="container">
+    <div class="icon-card">
+      <h2>App Icon (512x512)</h2>
+      <canvas id="iconCanvas" class="icon-512"></canvas>
+      <button class="download-btn" onclick="downloadIcon()">Download Icon</button>
+    </div>
+
+    <div class="icon-card">
+      <h2>Splash Screen (1200x630)</h2>
+      <canvas id="splashCanvas" class="splash-1200"></canvas>
+      <button class="download-btn" onclick="downloadSplash()">Download Splash</button>
+    </div>
+  </div>
+
+  <script>
+    // Icon Canvas
+    const iconCanvas = document.getElementById('iconCanvas');
+    const iconCtx = iconCanvas.getContext('2d');
+    iconCanvas.width = 512;
+    iconCanvas.height = 512;
+
+    // Draw icon gradient
+    const iconGradient = iconCtx.createLinearGradient(0, 0, 512, 512);
+    iconGradient.addColorStop(0, '#0052FF');
+    iconGradient.addColorStop(1, '#0046E0');
+    iconCtx.fillStyle = iconGradient;
+    iconCtx.fillRect(0, 0, 512, 512);
+
+    // Draw icon text
+    iconCtx.fillStyle = 'white';
+    iconCtx.font = '900 100px -apple-system, BlinkMacSystemFont, Arial, sans-serif';
+    iconCtx.textAlign = 'center';
+    iconCtx.textBaseline = 'middle';
+    iconCtx.letterSpacing = '8px';
+    iconCtx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+    iconCtx.shadowBlur = 16;
+    iconCtx.shadowOffsetY = 4;
+    iconCtx.fillText('BASED', 256, 220);
+
+    // Draw icon subtitle
+    iconCtx.font = '600 32px -apple-system, BlinkMacSystemFont, Arial, sans-serif';
+    iconCtx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    iconCtx.shadowBlur = 8;
+    iconCtx.fillText('BINGO', 256, 310);
+
+    // Splash Canvas
+    const splashCanvas = document.getElementById('splashCanvas');
+    const splashCtx = splashCanvas.getContext('2d');
+    splashCanvas.width = 1200;
+    splashCanvas.height = 630;
+
+    // Draw splash gradient
+    const splashGradient = splashCtx.createLinearGradient(0, 0, 1200, 630);
+    splashGradient.addColorStop(0, '#0052FF');
+    splashGradient.addColorStop(1, '#0046E0');
+    splashCtx.fillStyle = splashGradient;
+    splashCtx.fillRect(0, 0, 1200, 630);
+
+    // Draw splash text
+    splashCtx.fillStyle = 'white';
+    splashCtx.font = '900 150px -apple-system, BlinkMacSystemFont, Arial, sans-serif';
+    splashCtx.textAlign = 'center';
+    splashCtx.textBaseline = 'middle';
+    splashCtx.letterSpacing = '16px';
+    splashCtx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+    splashCtx.shadowBlur = 32;
+    splashCtx.shadowOffsetY = 8;
+    splashCtx.fillText('BASED', 600, 260);
+
+    // Draw splash subtitle
+    splashCtx.font = '600 48px -apple-system, BlinkMacSystemFont, Arial, sans-serif';
+    splashCtx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+    splashCtx.shadowBlur = 16;
+    splashCtx.letterSpacing = '2px';
+    splashCtx.fillText('BINGO', 600, 380);
+
+    // Download functions
+    function downloadIcon() {
+      const link = document.createElement('a');
+      link.download = 'icon.png';
+      link.href = iconCanvas.toDataURL('image/png');
+      link.click();
+    }
+
+    function downloadSplash() {
+      const link = document.createElement('a');
+      link.download = 'splash.png';
+      link.href = splashCanvas.toDataURL('image/png');
+      link.click();
+    }
+  </script>
+</body>
+</html>
