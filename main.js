@@ -295,7 +295,9 @@ async function handleSubmit() {
       letter: nextLetter
     });
 
-    const { data, error } = await supabase
+    console.log('🔵 Starting Supabase insert...');
+
+    const insertPromise = supabase
       .from('submissions')
       .insert({
         user_id: currentUser.id,
@@ -306,6 +308,10 @@ async function handleSubmit() {
       })
       .select()
       .single();
+
+    console.log('🔵 Waiting for database response...');
+    const { data, error } = await insertPromise;
+    console.log('🔵 Database call completed!');
 
     console.log('🔵 Database response - data:', data);
     console.log('🔵 Database response - error:', error);
