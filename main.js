@@ -1,6 +1,9 @@
 import { sdk } from '@farcaster/miniapp-sdk';
 import { supabase } from './supabase-client.js';
 
+console.log('🚀 main.js loaded!');
+console.log('🚀 Supabase client:', supabase);
+
 // Current user state
 let currentUser = null;
 
@@ -85,15 +88,31 @@ async function init() {
 // Handle login
 async function handleLogin() {
   try {
+    console.log('🔵 Starting login process...');
+    console.log('🔵 Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
+    console.log('🔵 Current window location:', window.location.origin);
+
     const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'twitter'
+      provider: 'twitter',
+      options: {
+        redirectTo: window.location.origin
+      }
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error('🔴 OAuth error:', error);
+      throw error;
+    }
 
-    console.log('Login initiated:', data);
+    console.log('🟢 Login data:', data);
+    console.log('🟢 Should redirect to:', data?.url);
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('🔴 Login error:', error);
+    console.error('🔴 Error details:', {
+      message: error.message,
+      status: error.status,
+      statusText: error.statusText
+    });
     alert(`Login failed: ${error.message || 'Please try again.'}`);
   }
 }
@@ -145,9 +164,16 @@ function showAuthScreen() {
 
 // Show game screen
 function showGameScreen() {
+  console.log('🟢 Showing game screen...');
+  console.log('🟢 authSection:', authSection);
+  console.log('🟢 userInfo:', userInfo);
+  console.log('🟢 gameContent:', gameContent);
+
   if (authSection) authSection.style.display = 'none';
   if (userInfo) userInfo.style.display = 'flex';
   if (gameContent) gameContent.style.display = 'block';
+
+  console.log('🟢 Game screen should now be visible');
 }
 
 // Load user's game data from database
@@ -173,12 +199,17 @@ async function loadUserGameData() {
 
 // Handle tweet submission
 async function handleSubmit() {
+  console.log('🔵 Submit button clicked!');
+  console.log('🔵 Current user:', currentUser);
+  console.log('🔵 Tweet input element:', tweetUrlInput);
+
   if (!currentUser) {
     alert('Please log in first');
     return;
   }
 
   const tweetUrl = tweetUrlInput.value.trim();
+  console.log('🔵 Tweet URL:', tweetUrl);
 
   // Validate tweet URL
   if (!tweetUrl) {
@@ -226,17 +257,25 @@ async function handleSubmit() {
       .single();
 
     if (error) {
+      console.error('🔴 Database error:', error);
       if (error.code === '23505') { // Unique constraint violation
         alert('This tweet has already been submitted!');
       } else {
-        throw error;
+        alert(`Error: ${error.message}`);
       }
       return;
     }
 
+    console.log('🟢 Submission successful:', data);
+
     // Update local state
     gameState.submissions.push(data);
     gameState.completedLetters.push(nextLetter);
+
+    console.log('🟢 Updated game state:', {
+      submissions: gameState.submissions.length,
+      completedLetters: gameState.completedLetters
+    });
 
     // Update UI
     updateUI();
@@ -253,7 +292,7 @@ async function handleSubmit() {
     // Check if game is complete
     checkGameComplete();
   } catch (error) {
-    console.error('Error submitting tweet:', error);
+    console.error('🔴 Error submitting tweet:', error);
     alert('Failed to submit tweet. Please try again.');
   }
 }
@@ -312,15 +351,17 @@ async function checkAdminAccess() {
       .from('admins')
       .select('*')
       .eq('user_id', currentUser.id)
-      .single();
+      .maybeSingle();
 
-    if (data) {
+    if (error) {
+      console.log('Admin check error (this is normal):', error.message);
+    } else if (data) {
       adminBtn.style.display = 'block';
       console.log('Admin button shown');
     }
   } catch (error) {
     // Not an admin or error - don't show button
-    console.log('Not an admin');
+    console.log('Not an admin or error checking admin status');
   }
 
   // Also show for localhost

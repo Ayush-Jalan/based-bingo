@@ -34,17 +34,17 @@ You MUST have these EXACT settings:
 
 **Step 4: Save Changes**
 
-### 2. Get OAuth 2.0 Client Credentials
+### 2. Get Twitter API Keys (Consumer Keys)
 
 After saving User authentication settings:
 
 1. Go to **"Keys and tokens"** tab
-2. Look for **"OAuth 2.0 Client ID and Client Secret"** section
+2. Look for **"Consumer Keys"** section (also called "API Key and Secret")
 3. Copy:
-   - **Client ID** (starts with letters/numbers)
-   - **Client Secret** (long alphanumeric string)
+   - **API Key** (also called Consumer Key)
+   - **API Key Secret** (also called Consumer Secret)
 
-**IMPORTANT:** You need OAuth 2.0 credentials, NOT the older API Key/Secret!
+**IMPORTANT:** You need the API Key/Secret (OAuth 1.0a credentials), NOT OAuth 2.0 Client ID/Secret!
 
 ### 3. Configure Supabase
 
@@ -55,8 +55,8 @@ Go to: https://app.supabase.com/project/madifhqhwzfotmpzlqel/auth/providers
 - Toggle it ON
 
 **Step 2: Add Credentials**
-- **Twitter Client ID**: Paste OAuth 2.0 Client ID from Twitter
-- **Twitter Client Secret**: Paste OAuth 2.0 Client Secret from Twitter
+- **Twitter Client ID**: Paste **API Key** (Consumer Key) from Twitter
+- **Twitter Client Secret**: Paste **API Key Secret** (Consumer Secret) from Twitter
 - **Redirect URL** (should be pre-filled): `https://madifhqhwzfotmpzlqel.supabase.co/auth/v1/callback`
 
 **Step 3: Save**
