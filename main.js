@@ -70,6 +70,28 @@ async function init() {
       }
     });
 
+    // Listen for page visibility changes
+    document.addEventListener('visibilitychange', async () => {
+      if (!document.hidden && currentUser) {
+        console.log('🔄 Page became visible - refreshing data...');
+        await loadUserGameData();
+        updateUI();
+        // Re-enable submit button if it got stuck
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+
+    // Listen for page focus
+    window.addEventListener('focus', async () => {
+      if (currentUser) {
+        console.log('🔄 Window focused - refreshing data...');
+        await loadUserGameData();
+        updateUI();
+        // Re-enable submit button if it got stuck
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+
     // Tell Farcaster the app is ready (if running in Farcaster)
     try {
       if (sdk && sdk.actions && sdk.actions.ready) {
