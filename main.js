@@ -228,6 +228,9 @@ async function handleSubmit() {
   }
 
   // Check if game is already complete
+  console.log('🔵 Completed letters:', gameState.completedLetters);
+  console.log('🔵 Completed count:', gameState.completedLetters.length);
+
   if (gameState.completedLetters.length >= 4) {
     if (submitBtn) submitBtn.disabled = false;
     alert('You\'ve already completed the game! 🎉');
@@ -236,6 +239,7 @@ async function handleSubmit() {
 
   // Get the next letter to strike
   const nextLetter = BASE_LETTERS[gameState.completedLetters.length];
+  console.log('🔵 Next letter to strike:', nextLetter);
 
   // Extract X username from tweet URL
   let xUsername = 'Unknown';
@@ -247,6 +251,8 @@ async function handleSubmit() {
   } catch (error) {
     console.log('Could not extract username from URL:', error);
   }
+
+  console.log('🔵 About to insert into database...');
 
   try {
     // Insert submission into database
