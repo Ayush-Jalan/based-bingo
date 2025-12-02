@@ -403,6 +403,25 @@ window.removeAdmin = function(fid) {
   }
 };
 
+// Reset game data (admin only)
+window.resetGameData = function() {
+  if (confirm('⚠️ WARNING: This will delete ALL game data including submissions and progress. This cannot be undone. Are you sure?')) {
+    if (confirm('Are you ABSOLUTELY sure? This will permanently delete all player submissions!')) {
+      // Keep admin FIDs, reset everything else
+      const currentAdmins = gameState.adminFids;
+      gameState.completedLetters = [];
+      gameState.submissions = [];
+      gameState.adminFids = currentAdmins;
+
+      saveGameState();
+      updateUI();
+      populateSubmissions();
+
+      alert('Game data has been reset successfully!');
+    }
+  }
+};
+
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
