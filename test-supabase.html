@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supabase Connection Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .test-card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #0052FF;
+      margin-top: 0;
+    }
+    .test-item {
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border-left: 4px solid #ddd;
+    }
+    .test-item.success {
+      background: #e8f5e9;
+      border-left-color: #4caf50;
+    }
+    .test-item.error {
+      background: #ffebee;
+      border-left-color: #f44336;
+    }
+    .test-item.pending {
+      background: #fff3e0;
+      border-left-color: #ff9800;
+    }
+    .test-item h3 {
+      margin: 0 0 10px 0;
+      font-size: 16px;
+    }
+    .test-item p {
+      margin: 5px 0;
+      font-size: 14px;
+      color: #666;
+    }
+    .code {
+      background: #f5f5f5;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+    }
+    button {
+      background: #0052FF;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background: #0046E0;
+    }
+    #results {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-card">
+    <h1>🔍 Supabase Setup Checker</h1>
+    <p>This will verify your Supabase configuration and database setup.</p>
+
+    <button onclick="runTests()">Run Tests</button>
+
+    <div id="results"></div>
+  </div>
+
+  <script type="module">
+    import { supabase } from './supabase-client.js';
+
+    window.runTests = async function() {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '<h2>Running tests...</h2>';
+
+      const tests = [];
+
+      // Test 1: Environment variables loaded
+      tests.push(await testEnvVars());
+
+      // Test 2: Supabase client initialized
+      tests.push(await testSupabaseClient());
+
+      // Test 3: Database connection
+      tests.push(await testDatabaseConnection());
+
+      // Test 4: Check submissions table
+      tests.push(await testSubmissionsTable());
+
+      // Test 5: Check admins table
+      tests.push(await testAdminsTable());
+
+      // Test 6: Check auth configuration
+      tests.push(await testAuthConfig());
+
+      // Render results
+      renderResults(tests);
+    }
+
+    async function testEnvVars() {
+      const url = import.meta.env.VITE_SUPABASE_URL;
+      const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+      if (!url || !key) {
+        return {
+          name: 'Environment Variables',
+          status: 'error',
+          message: 'Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY in .env file'
+        };
+      }
+
+      if (url === 'your_supabase_project_url' || key === 'your_supabase_anon_key') {
+        return {
+          name: 'Environment Variables',
+          status: 'error',
+          message: 'Please replace placeholder values in .env with your actual Supabase credentials'
+        };
+      }
+
+      return {
+        name: 'Environment Variables',
+        status: 'success',
+        message: `URL: ${url}<br>Key: ${key.substring(0, 20)}...`
+      };
+    }
+
+    async function testSupabaseClient() {
+      try {
+        if (!supabase) {
+          return {
+            name: 'Supabase Client',
+            status: 'error',
+            message: 'Supabase client not initialized'
+          };
+        }
+
+        return {
+          name: 'Supabase Client',
+          status: 'success',
+          message: 'Client successfully initialized'
+        };
+      } catch (error) {
+        return {
+          name: 'Supabase Client',
+          status: 'error',
+          message: error.message
+        };
+      }
+    }
+
+    async function testDatabaseConnection() {
+      try {
+        const { data, error } = await supabase.from('submissions').select('count', { count: 'exact', head: true });
+
+        if (error) throw error;
+
+        return {
+          name: 'Database Connection',
+          status: 'success',
+          message: 'Successfully connected to database'
+        };
+      } catch (error) {
+        return {
+          name: 'Database Connection',
+          status: 'error',
+          message: `Connection failed: ${error.message}`
+        };
+      }
+    }
+
+    async function testSubmissionsTable() {
+      try {
+        const { data, error } = await supabase.from('submissions').select('*').limit(1);
+
+        if (error) {
+          if (error.code === '42P01') {
+            return {
+              name: 'Submissions Table',
+              status: 'error',
+              message: 'Table does not exist. Please run the SQL schema from SUPABASE_SETUP.md'
+            };
+          }
+          throw error;
+        }
+
+        return {
+          name: 'Submissions Table',
+          status: 'success',
+          message: `Table exists. Current submissions: ${data.length}`
+        };
+      } catch (error) {
+        return {
+          name: 'Submissions Table',
+          status: 'error',
+          message: error.message
+        };
+      }
+    }
+
+    async function testAdminsTable() {
+      try {
+        const { data, error } = await supabase.from('admins').select('*');
+
+        if (error) {
+          if (error.code === '42P01') {
+            return {
+              name: 'Admins Table',
+              status: 'error',
+              message: 'Table does not exist. Please run the SQL schema from SUPABASE_SETUP.md'
+            };
+          }
+          throw error;
+        }
+
+        return {
+          name: 'Admins Table',
+          status: 'success',
+          message: `Table exists. Admins configured: ${data.length}`
+        };
+      } catch (error) {
+        return {
+          name: 'Admins Table',
+          status: 'error',
+          message: error.message
+        };
+      }
+    }
+
+    async function testAuthConfig() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+
+        return {
+          name: 'Authentication',
+          status: 'pending',
+          message: session ? `Logged in as: ${session.user.email || session.user.user_metadata?.user_name}` : 'Not logged in. X OAuth needs to be configured in Supabase dashboard.'
+        };
+      } catch (error) {
+        return {
+          name: 'Authentication',
+          status: 'error',
+          message: error.message
+        };
+      }
+    }
+
+    function renderResults(tests) {
+      const resultsDiv = document.getElementById('results');
+
+      const successCount = tests.filter(t => t.status === 'success').length;
+      const totalTests = tests.length;
+
+      let html = `<h2>Test Results: ${successCount}/${totalTests} passed</h2>`;
+
+      tests.forEach(test => {
+        html += `
+          <div class="test-item ${test.status}">
+            <h3>${test.status === 'success' ? '✅' : test.status === 'error' ? '❌' : '⚠️'} ${test.name}</h3>
+            <p>${test.message}</p>
+          </div>
+        `;
+      });
+
+      // Add next steps
+      const failures = tests.filter(t => t.status === 'error');
+      if (failures.length > 0) {
+        html += `
+          <div class="test-item pending">
+            <h3>📋 Next Steps</h3>
+            <p>Fix the errors above by following these steps:</p>
+            <ol style="margin: 10px 0; padding-left: 20px;">
+              <li>Go to <a href="https://app.supabase.com" target="_blank">Supabase Dashboard</a></li>
+              <li>Open the SQL Editor</li>
+              <li>Run the schema from <span class="code">SUPABASE_SETUP.md</span></li>
+              <li>Configure X OAuth in Authentication → Providers</li>
+              <li>Refresh this page and run tests again</li>
+            </ol>
+          </div>
+        `;
+      } else {
+        html += `
+          <div class="test-item success">
+            <h3>🎉 All tests passed!</h3>
+            <p>Your Supabase setup is complete. You can now:</p>
+            <ol style="margin: 10px 0; padding-left: 20px;">
+              <li>Go to <a href="/">Based Bingo</a></li>
+              <li>Click "Sign in with X"</li>
+              <li>Start playing!</li>
+            </ol>
+          </div>
+        `;
+      }
+
+      resultsDiv.innerHTML = html;
+    }
+  </script>
+</body>
+</html>

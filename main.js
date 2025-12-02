@@ -85,17 +85,16 @@ async function init() {
 // Handle login
 async function handleLogin() {
   try {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'twitter',
-      options: {
-        redirectTo: `${window.location.origin}/`
-      }
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'twitter'
     });
 
     if (error) throw error;
+
+    console.log('Login initiated:', data);
   } catch (error) {
     console.error('Login error:', error);
-    alert('Login failed. Please try again.');
+    alert(`Login failed: ${error.message || 'Please try again.'}`);
   }
 }
 
