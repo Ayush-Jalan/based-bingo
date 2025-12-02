@@ -297,6 +297,7 @@ async function handleSubmit() {
 
     console.log('🔵 Starting Supabase insert...');
 
+    // Try without .single() first to see if that's the issue
     const insertPromise = supabase
       .from('submissions')
       .insert({
@@ -306,12 +307,14 @@ async function handleSubmit() {
         tweet_url: tweetUrl,
         letter: nextLetter
       })
-      .select()
-      .single();
+      .select();
 
     console.log('🔵 Waiting for database response...');
-    const { data, error } = await insertPromise;
+    const result = await insertPromise;
     console.log('🔵 Database call completed!');
+
+    const { data: dataArray, error } = result;
+    const data = dataArray && dataArray.length > 0 ? dataArray[0] : null;
 
     console.log('🔵 Database response - data:', data);
     console.log('🔵 Database response - error:', error);
