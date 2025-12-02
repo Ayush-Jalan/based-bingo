@@ -278,7 +278,15 @@ async function handleSubmit() {
 
   try {
     // Insert submission into database
-    const result = await supabase
+    console.log('🔵 Inserting data:', {
+      user_id: currentUser.id,
+      x_username: currentUser.user_metadata?.user_name || xUsername.replace('@', ''),
+      x_user_id: currentUser.user_metadata?.provider_id,
+      tweet_url: tweetUrl,
+      letter: nextLetter
+    });
+
+    const { data, error } = await supabase
       .from('submissions')
       .insert({
         user_id: currentUser.id,
@@ -290,9 +298,8 @@ async function handleSubmit() {
       .select()
       .single();
 
-    console.log('🔵 Database result:', result);
-
-    const { data, error } = result;
+    console.log('🔵 Database response - data:', data);
+    console.log('🔵 Database response - error:', error);
 
     if (error) {
       console.error('🔴 Database error:', error);
@@ -334,7 +341,10 @@ async function handleSubmit() {
     // Re-enable button
     if (submitBtn) submitBtn.disabled = false;
   } catch (error) {
-    console.error('🔴 Error submitting tweet:', error);
+    console.error('🔴 Caught error submitting tweet:', error);
+    console.error('🔴 Error name:', error.name);
+    console.error('🔴 Error message:', error.message);
+    console.error('🔴 Error stack:', error.stack);
     if (submitBtn) submitBtn.disabled = false;
     alert('Failed to submit tweet. Please try again.');
   }
