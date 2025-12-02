@@ -52,14 +52,18 @@ async function init() {
     // Update UI with saved state
     updateUI();
 
-    // Tell Farcaster the app is ready to display
-    await sdk.actions.ready();
+    // Tell Farcaster the app is ready to display (if running in Farcaster)
+    try {
+      if (sdk && sdk.actions && sdk.actions.ready) {
+        await sdk.actions.ready();
+      }
+    } catch (error) {
+      console.log('Not running in Farcaster context');
+    }
 
     console.log('Based Bingo initialized successfully!');
   } catch (error) {
     console.error('Error initializing app:', error);
-    // Still call ready() even if there's an error
-    await sdk.actions.ready();
   }
 }
 
@@ -94,13 +98,15 @@ async function handleSubmit() {
   // Get the next letter to strike (based on current progress)
   const nextLetter = BASE_LETTERS[gameState.completedLetters.length];
 
-  // Get user's wallet address from Farcaster SDK
-  let walletAddress = 'Unknown';
+  // Extract X username from tweet URL
+  let xUsername = 'Unknown';
   try {
-    const context = await sdk.context;
-    walletAddress = context?.user?.verifiedAddresses?.[0] || context?.user?.username || 'Anonymous';
+    const urlMatch = tweetUrl.match(/(?:twitter\.com|x\.com)\/([^\/]+)\/status/);
+    if (urlMatch && urlMatch[1]) {
+      xUsername = '@' + urlMatch[1];
+    }
   } catch (error) {
-    console.log('Could not get wallet address:', error);
+    console.log('Could not extract username from URL:', error);
   }
 
   // Create submission record
@@ -109,7 +115,7 @@ async function handleSubmit() {
     letter: nextLetter,
     timestamp: new Date().toISOString(),
     submissionNumber: gameState.submissions.length + 1,
-    walletAddress: walletAddress
+    xUsername: xUsername
   };
 
   // Add to submissions and mark letter as completed
@@ -204,16 +210,19 @@ function loadGameState() {
 
 // Check if current user is an admin and show admin button
 async function checkAdminAccess() {
-  // Always show admin button on localhost for testing
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+  // For soft launch, show admin button on localhost and also check for admin query param
+  const urlParams = new URLSearchParams(window.location.search);
+  const isAdmin = urlParams.get('admin') === 'true';
+
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || isAdmin) {
     if (adminBtn) {
       adminBtn.style.display = 'block';
     }
-    console.log('Admin button shown (localhost mode)');
+    console.log('Admin button shown');
     return;
   }
 
-  // In production, check FID
+  // In production with Farcaster, check FID
   try {
     const context = await sdk.context;
     const userFid = context?.user?.fid;
@@ -226,7 +235,7 @@ async function checkAdminAccess() {
       console.log('Admin button shown for FID:', userFid);
     }
   } catch (error) {
-    console.log('Could not check admin access:', error);
+    console.log('Not running in Farcaster context');
   }
 }
 
@@ -277,14 +286,14 @@ function populateSubmissions() {
     return;
   }
 
-  // Group submissions by wallet address
+  // Group submissions by X username
   const userSubmissions = {};
   gameState.submissions.forEach((submission) => {
-    const wallet = submission.walletAddress || 'Unknown';
-    if (!userSubmissions[wallet]) {
-      userSubmissions[wallet] = [];
+    const username = submission.xUsername || submission.walletAddress || 'Unknown';
+    if (!userSubmissions[username]) {
+      userSubmissions[username] = [];
     }
-    userSubmissions[wallet].push(submission);
+    userSubmissions[username].push(submission);
   });
 
   // Update total count (number of unique players)
@@ -293,13 +302,8 @@ function populateSubmissions() {
   }
 
   // Add row for each user
-  Object.entries(userSubmissions).forEach(([wallet, submissions]) => {
+  Object.entries(userSubmissions).forEach(([username, submissions]) => {
     const row = document.createElement('tr');
-
-    // Wallet address (shortened)
-    const shortWallet = wallet.length > 20
-      ? `${wallet.substring(0, 10)}...${wallet.substring(wallet.length - 8)}`
-      : wallet;
 
     // Progress (how many letters completed)
     const lettersCompleted = submissions.map(s => s.letter).join('');
@@ -316,7 +320,7 @@ function populateSubmissions() {
       : '<span class="status-incomplete">In Progress</span>';
 
     row.innerHTML = `
-      <td title="${wallet}">${shortWallet}</td>
+      <td>${username}</td>
       <td>${progress}</td>
       <td class="tweet-links">${tweetLinks}</td>
       <td>${status}</td>
