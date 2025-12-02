@@ -208,22 +208,28 @@ async function handleSubmit() {
     return;
   }
 
+  // Disable button during submission
+  if (submitBtn) submitBtn.disabled = true;
+
   const tweetUrl = tweetUrlInput.value.trim();
   console.log('🔵 Tweet URL:', tweetUrl);
 
   // Validate tweet URL
   if (!tweetUrl) {
+    if (submitBtn) submitBtn.disabled = false;
     alert('Please enter a tweet URL');
     return;
   }
 
   if (!isValidTwitterUrl(tweetUrl)) {
+    if (submitBtn) submitBtn.disabled = false;
     alert('Please enter a valid X (Twitter) URL');
     return;
   }
 
   // Check if game is already complete
   if (gameState.completedLetters.length >= 4) {
+    if (submitBtn) submitBtn.disabled = false;
     alert('You\'ve already completed the game! 🎉');
     return;
   }
@@ -258,6 +264,7 @@ async function handleSubmit() {
 
     if (error) {
       console.error('🔴 Database error:', error);
+      if (submitBtn) submitBtn.disabled = false;
       if (error.code === '23505') { // Unique constraint violation
         alert('This tweet has already been submitted!');
       } else {
@@ -291,8 +298,12 @@ async function handleSubmit() {
 
     // Check if game is complete
     checkGameComplete();
+
+    // Re-enable button
+    if (submitBtn) submitBtn.disabled = false;
   } catch (error) {
     console.error('🔴 Error submitting tweet:', error);
+    if (submitBtn) submitBtn.disabled = false;
     alert('Failed to submit tweet. Please try again.');
   }
 }
