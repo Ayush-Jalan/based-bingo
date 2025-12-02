@@ -3,14 +3,17 @@ import { sdk } from '@farcaster/miniapp-sdk';
 // Game state
 const gameState = {
   completedLetters: [], // Stores letters in order: B, A, S, E
-  submissions: [] // Stores detailed submission data for admin review
+  submissions: [], // Stores detailed submission data for admin review
+  adminFids: [348330] // Initial admin FIDs - stored in localStorage and can be updated from app
 };
 
 // The word BASE - letters are struck in order
 const BASE_LETTERS = ['B', 'A', 'S', 'E'];
 
-// Admin FIDs - add multiple FIDs for admin access
-const ADMIN_FIDS = [348330]; // Add more FIDs to this array: [348330, 12345, 67890]
+// Get admin FIDs from game state (loaded from localStorage)
+function getAdminFids() {
+  return gameState.adminFids || [348330];
+}
 
 // DOM elements
 let tweetUrlInput;
@@ -192,6 +195,7 @@ function loadGameState() {
       const parsed = JSON.parse(saved);
       gameState.completedLetters = parsed.completedLetters || [];
       gameState.submissions = parsed.submissions || [];
+      gameState.adminFids = parsed.adminFids || [348330];
     } catch (error) {
       console.error('Error loading saved state:', error);
     }
@@ -215,7 +219,7 @@ async function checkAdminAccess() {
     const userFid = context?.user?.fid;
 
     // Show admin button if user's FID is in the admin list
-    if (userFid && ADMIN_FIDS.includes(userFid)) {
+    if (userFid && getAdminFids().includes(userFid)) {
       if (adminBtn) {
         adminBtn.style.display = 'block';
       }
@@ -233,8 +237,8 @@ window.viewSubmissions = async function() {
     const context = await sdk.context;
     const userFid = context?.user?.fid;
 
-    // Check if user is admin (update ADMIN_FIDS array at top of file)
-    if (ADMIN_FIDS.length > 0 && userFid && !ADMIN_FIDS.includes(userFid)) {
+    // Check if user is admin
+    if (getAdminFids().length > 0 && userFid && !getAdminFids().includes(userFid)) {
       alert('Access denied. Admin only.');
       return;
     }
@@ -254,6 +258,7 @@ function showAdminPanel() {
   if (panel) {
     panel.classList.add('show');
     populateSubmissions();
+    populateAdminList();
   }
 }
 
@@ -325,6 +330,72 @@ window.closeAdminPanel = function() {
   const panel = document.getElementById('adminPanel');
   if (panel) {
     panel.classList.remove('show');
+  }
+};
+
+// Populate admin list in admin panel
+function populateAdminList() {
+  const adminList = document.getElementById('adminList');
+  if (!adminList) return;
+
+  adminList.innerHTML = '';
+
+  const adminFids = getAdminFids();
+  adminFids.forEach((fid) => {
+    const adminItem = document.createElement('div');
+    adminItem.className = 'admin-item';
+    adminItem.innerHTML = `
+      <span class="admin-fid">FID: ${fid}</span>
+      ${adminFids.length > 1 ? `<button onclick="removeAdmin(${fid})" class="remove-admin-btn">Remove</button>` : '<span class="primary-admin-badge">Primary Admin</span>'}
+    `;
+    adminList.appendChild(adminItem);
+  });
+}
+
+// Add new admin
+window.addNewAdmin = async function() {
+  const input = document.getElementById('newAdminFid');
+  if (!input) return;
+
+  const newFid = parseInt(input.value.trim());
+
+  if (!newFid || isNaN(newFid)) {
+    alert('Please enter a valid FID number');
+    return;
+  }
+
+  const adminFids = getAdminFids();
+
+  if (adminFids.includes(newFid)) {
+    alert('This FID is already an admin');
+    return;
+  }
+
+  // Add to admin list
+  gameState.adminFids.push(newFid);
+  saveGameState();
+
+  // Update UI
+  populateAdminList();
+  input.value = '';
+
+  alert(`Admin FID ${newFid} added successfully!`);
+};
+
+// Remove admin
+window.removeAdmin = function(fid) {
+  const adminFids = getAdminFids();
+
+  if (adminFids.length <= 1) {
+    alert('Cannot remove the last admin');
+    return;
+  }
+
+  if (confirm(`Are you sure you want to remove admin FID ${fid}?`)) {
+    gameState.adminFids = adminFids.filter(id => id !== fid);
+    saveGameState();
+    populateAdminList();
+    alert(`Admin FID ${fid} removed successfully!`);
   }
 };
 

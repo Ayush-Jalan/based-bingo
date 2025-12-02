@@ -100,6 +100,14 @@
             </tbody>
           </table>
         </div>
+        <div class="admin-section">
+          <h3>Admin Management</h3>
+          <div class="add-admin-form">
+            <input type="number" id="newAdminFid" placeholder="Enter FID to add as admin" />
+            <button onclick="addNewAdmin()" class="add-admin-btn">Add Admin</button>
+          </div>
+          <div id="adminList" class="admin-list"></div>
+        </div>
         <div class="admin-footer">
           <p>Total Players: <span id="totalSubmissions">0</span></p>
           <button onclick="closeAdminPanel()" class="admin-btn">Close</button>

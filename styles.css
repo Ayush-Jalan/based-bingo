@@ -417,6 +417,105 @@ header h1 {
   font-weight: 600;
 }
 
+/* Admin Section */
+.admin-section {
+  padding: 24px;
+  border-top: 2px solid #E0E0E0;
+  background: #F9F9F9;
+}
+
+.admin-section h3 {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  color: var(--primary-blue);
+}
+
+.add-admin-form {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+#newAdminFid {
+  flex: 1;
+  padding: 10px 14px;
+  border: 2px solid #E0E0E0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #333;
+}
+
+#newAdminFid:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+}
+
+.add-admin-btn {
+  padding: 10px 24px;
+  background: var(--success-green);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.add-admin-btn:hover {
+  background: #00BC82;
+  transform: translateY(-2px);
+}
+
+.admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: white;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+}
+
+.admin-fid {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.remove-admin-btn {
+  padding: 6px 16px;
+  background: #FF3B30;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.remove-admin-btn:hover {
+  background: #E02020;
+  transform: translateY(-1px);
+}
+
+.primary-admin-badge {
+  padding: 6px 12px;
+  background: var(--primary-blue);
+  color: white;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .admin-footer {
   padding: 20px 24px;
   border-top: 2px solid #E0E0E0;
