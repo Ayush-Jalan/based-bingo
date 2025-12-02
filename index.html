@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Based Bingo | IBWxBasedIndia</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <h1>BASED BINGO</h1>
+      <p class="subtitle">IBWxBasedIndia Game</p>
+    </header>
+
+    <!-- Instructions -->
+    <div class="instructions">
+      <p>📸 Snap a pic with 4 of our team members and tag us <a href="https://x.com/BasedIndia" target="_blank" rel="noopener noreferrer" class="twitter-link">@BasedIndia</a></p>
+      <p>Complete the word <strong>BASE</strong> to win!</p>
+    </div>
+
+    <!-- BASE Letters Display -->
+    <div class="base-letters">
+      <div class="letter" data-letter="B">
+        <span>B</span>
+        <div class="strike"></div>
+      </div>
+      <div class="letter" data-letter="A">
+        <span>A</span>
+        <div class="strike"></div>
+      </div>
+      <div class="letter" data-letter="S">
+        <span>S</span>
+        <div class="strike"></div>
+      </div>
+      <div class="letter" data-letter="E">
+        <span>E</span>
+        <div class="strike"></div>
+      </div>
+    </div>
+
+    <!-- Team Members Card -->
+    <div class="team-card">
+      <img src="./assets/team-poster.jpg" alt="BasedIndia Team Members" class="team-poster" />
+      <p class="team-card-caption">All 8 BasedIndia Team Members</p>
+    </div>
+
+    <!-- Tweet Submission Form -->
+    <div class="tweet-form">
+      <h3>Submit Your Tweet</h3>
+      <p class="form-description">Post your pic on X and paste the tweet URL below</p>
+      <input
+        type="url"
+        id="tweetUrl"
+        placeholder="https://x.com/username/status/..."
+        required
+      />
+      <button id="submitBtn" class="submit-btn">Submit Tweet</button>
+    </div>
+
+    <!-- Progress Info -->
+    <div class="progress-info">
+      <p>Letters Completed: <span id="progressCount">0</span>/4</p>
+    </div>
+
+    <!-- Admin Button (only visible to admins) -->
+    <button id="adminBtn" class="admin-access-btn" style="display: none;">Admin Panel</button>
+
+    <!-- Game Complete Modal -->
+    <div id="completeModal" class="modal">
+      <div class="modal-content">
+        <h2>🎉 Congratulations!</h2>
+        <p>You've completed BASED BINGO!</p>
+        <button id="closeModal">Close</button>
+      </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div id="adminPanel" class="modal admin-modal">
+      <div class="admin-content">
+        <div class="admin-header">
+          <h2>Admin Panel - Submissions Review</h2>
+          <button onclick="closeAdminPanel()" class="close-admin-btn">✕</button>
+        </div>
+        <div class="admin-body">
+          <table class="submissions-table">
+            <thead>
+              <tr>
+                <th>Wallet Address</th>
+                <th>Progress</th>
+                <th>Tweets</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="submissionsTableBody">
+              <tr>
+                <td colspan="4" style="text-align: center;">No submissions yet</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="admin-footer">
+          <p>Total Players: <span id="totalSubmissions">0</span></p>
+          <button onclick="closeAdminPanel()" class="admin-btn">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
