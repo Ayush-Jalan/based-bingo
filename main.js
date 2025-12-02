@@ -297,6 +297,11 @@ async function handleSubmit() {
 
     console.log('🔵 Starting Supabase insert...');
 
+    // Create a timeout promise
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Database insert timed out after 10 seconds')), 10000);
+    });
+
     // Try without .single() first to see if that's the issue
     const insertPromise = supabase
       .from('submissions')
@@ -309,8 +314,8 @@ async function handleSubmit() {
       })
       .select();
 
-    console.log('🔵 Waiting for database response...');
-    const result = await insertPromise;
+    console.log('🔵 Waiting for database response (10s timeout)...');
+    const result = await Promise.race([insertPromise, timeoutPromise]);
     console.log('🔵 Database call completed!');
 
     const { data: dataArray, error } = result;
