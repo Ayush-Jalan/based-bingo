@@ -256,7 +256,7 @@ async function handleSubmit() {
 
   try {
     // Insert submission into database
-    const { data, error } = await supabase
+    const result = await supabase
       .from('submissions')
       .insert({
         user_id: currentUser.id,
@@ -267,6 +267,10 @@ async function handleSubmit() {
       })
       .select()
       .single();
+
+    console.log('🔵 Database result:', result);
+
+    const { data, error } = result;
 
     if (error) {
       console.error('🔴 Database error:', error);
