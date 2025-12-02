@@ -551,6 +551,15 @@ header h1 {
   background: var(--secondary-blue);
 }
 
+.admin-btn.danger-btn {
+  background: #FF3B30;
+  margin-right: 12px;
+}
+
+.admin-btn.danger-btn:hover {
+  background: #E02020;
+}
+
 /* Responsive */
 @media (max-width: 480px) {
   header h1 {
