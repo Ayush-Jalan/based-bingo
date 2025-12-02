@@ -2,9 +2,9 @@
   "name": "Based Bingo",
   "version": "1.0.0",
   "description": "IBWxBasedIndia Bingo - Complete the word BASE by taking photos with team members!",
-  "homeUrl": "https://your-app-url.com",
-  "imageUrl": "https://your-app-url.com/icon.png",
-  "splashImageUrl": "https://your-app-url.com/splash.png",
+  "homeUrl": "https://based-bingo-lyart.vercel.app",
+  "imageUrl": "https://based-bingo-lyart.vercel.app/icon.png",
+  "splashImageUrl": "https://based-bingo-lyart.vercel.app/splash.png",
   "splashBackgroundColor": "#0052FF",
   "developer": {
     "name": "Based India",
