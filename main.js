@@ -7,6 +7,9 @@ console.log('🚀 Supabase client:', supabase);
 // Current user state
 let currentUser = null;
 
+// Track if a submission is in progress
+let submissionInProgress = false;
+
 // Game state (for UI only - database is source of truth)
 const gameState = {
   completedLetters: [], // User's completed letters
@@ -72,23 +75,23 @@ async function init() {
 
     // Listen for page visibility changes
     document.addEventListener('visibilitychange', async () => {
-      if (!document.hidden && currentUser) {
+      if (!document.hidden && currentUser && !submissionInProgress) {
         console.log('🔄 Page became visible - refreshing data...');
         await loadUserGameData();
         updateUI();
         // Re-enable submit button if it got stuck
-        if (submitBtn) submitBtn.disabled = false;
+        if (submitBtn && !submissionInProgress) submitBtn.disabled = false;
       }
     });
 
     // Listen for page focus
     window.addEventListener('focus', async () => {
-      if (currentUser) {
+      if (currentUser && !submissionInProgress) {
         console.log('🔄 Window focused - refreshing data...');
         await loadUserGameData();
         updateUI();
         // Re-enable submit button if it got stuck
-        if (submitBtn) submitBtn.disabled = false;
+        if (submitBtn && !submissionInProgress) submitBtn.disabled = false;
       }
     });
 
@@ -230,6 +233,9 @@ async function handleSubmit() {
     return;
   }
 
+  // Mark submission as in progress
+  submissionInProgress = true;
+
   // Disable button during submission
   if (submitBtn) submitBtn.disabled = true;
 
@@ -238,12 +244,14 @@ async function handleSubmit() {
 
   // Validate tweet URL
   if (!tweetUrl) {
+    submissionInProgress = false;
     if (submitBtn) submitBtn.disabled = false;
     alert('Please enter a tweet URL');
     return;
   }
 
   if (!isValidTwitterUrl(tweetUrl)) {
+    submissionInProgress = false;
     if (submitBtn) submitBtn.disabled = false;
     alert('Please enter a valid X (Twitter) URL');
     return;
@@ -254,6 +262,7 @@ async function handleSubmit() {
   console.log('🔵 Completed count:', gameState.completedLetters.length);
 
   if (gameState.completedLetters.length >= 4) {
+    submissionInProgress = false;
     if (submitBtn) submitBtn.disabled = false;
     alert('You\'ve already completed the game! 🎉');
     return;
@@ -303,6 +312,7 @@ async function handleSubmit() {
 
     if (error) {
       console.error('🔴 Database error:', error);
+      submissionInProgress = false;
       if (submitBtn) submitBtn.disabled = false;
       if (error.code === '23505') { // Unique constraint violation
         alert('This tweet has already been submitted!');
@@ -338,13 +348,15 @@ async function handleSubmit() {
     // Check if game is complete
     checkGameComplete();
 
-    // Re-enable button
+    // Re-enable button and clear flag
+    submissionInProgress = false;
     if (submitBtn) submitBtn.disabled = false;
   } catch (error) {
     console.error('🔴 Caught error submitting tweet:', error);
     console.error('🔴 Error name:', error.name);
     console.error('🔴 Error message:', error.message);
     console.error('🔴 Error stack:', error.stack);
+    submissionInProgress = false;
     if (submitBtn) submitBtn.disabled = false;
     alert('Failed to submit tweet. Please try again.');
   }
