@@ -377,9 +377,19 @@ async function handleSubmit() {
     console.error('🔴 Error name:', error.name);
     console.error('🔴 Error message:', error.message);
     console.error('🔴 Error stack:', error.stack);
+
     submissionInProgress = false;
     if (submitBtn) submitBtn.disabled = false;
-    alert('Failed to submit tweet. Please try again.');
+
+    // If timeout error, offer to refresh the page
+    if (error.message && error.message.includes('timed out')) {
+      const shouldRefresh = confirm('The submission timed out. This usually happens due to connection issues. Would you like to refresh the page and try again?');
+      if (shouldRefresh) {
+        window.location.reload();
+      }
+    } else {
+      alert('Failed to submit tweet. Please try again.');
+    }
   }
 }
 
