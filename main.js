@@ -299,7 +299,7 @@ async function handleSubmit() {
 
     // Create a timeout promise
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Database insert timed out after 10 seconds')), 10000);
+      setTimeout(() => reject(new Error('Database insert timed out after 5 seconds')), 5000);
     });
 
     // Insert without .select() to avoid RLS SELECT permission hang
@@ -314,7 +314,7 @@ async function handleSubmit() {
         letter: nextLetter
       });
 
-    console.log('🔵 Waiting for database response (10s timeout)...');
+    console.log('🔵 Waiting for database response (5s timeout)...');
     const { error } = await Promise.race([insertPromise, timeoutPromise]);
     console.log('🔵 Database call completed!');
 
