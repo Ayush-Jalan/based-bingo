@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Setup & Testing - Based Bingo</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      max-width: 900px;
+      margin: 50px auto;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 30px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    h1 {
+      margin-top: 0;
+      font-size: 32px;
+      font-weight: 900;
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 24px;
+      font-weight: 700;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+      padding-bottom: 10px;
+    }
+    button {
+      background: #0052FF;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      transition: all 0.2s;
+    }
+    button:hover {
+      background: #0046E0;
+      transform: translateY(-2px);
+    }
+    button.secondary {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    button.secondary:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    .info-box {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 16px;
+      border-radius: 8px;
+      margin: 16px 0;
+      border-left: 4px solid #4CAF50;
+    }
+    .warning-box {
+      background: rgba(255, 193, 7, 0.2);
+      padding: 16px;
+      border-radius: 8px;
+      margin: 16px 0;
+      border-left: 4px solid #FFC107;
+    }
+    .error-box {
+      background: rgba(244, 67, 54, 0.2);
+      padding: 16px;
+      border-radius: 8px;
+      margin: 16px 0;
+      border-left: 4px solid #F44336;
+    }
+    .success-box {
+      background: rgba(76, 175, 80, 0.2);
+      padding: 16px;
+      border-radius: 8px;
+      margin: 16px 0;
+      border-left: 4px solid #4CAF50;
+    }
+    code {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+    }
+    pre {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 13px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 14px;
+      margin: 10px 0;
+    }
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-left: 10px;
+    }
+    .status-success {
+      background: #4CAF50;
+      color: white;
+    }
+    .status-error {
+      background: #F44336;
+      color: white;
+    }
+    .status-pending {
+      background: #FFC107;
+      color: black;
+    }
+    #results {
+      margin-top: 20px;
+    }
+    .admin-list {
+      list-style: none;
+      padding: 0;
+    }
+    .admin-item {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin: 8px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .user-info-display {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🛠️ Admin Setup & Testing</h1>
+    <p>Use this page to manage admins and test your Based Bingo setup.</p>
+  </div>
+
+  <!-- Authentication Status -->
+  <div class="card">
+    <h2>1️⃣ Authentication Status</h2>
+    <div id="auth-status">
+      <p>Checking authentication...</p>
+    </div>
+    <button id="login-btn" style="display: none;">Sign in with X</button>
+    <button id="logout-btn" class="secondary" style="display: none;">Sign Out</button>
+  </div>
+
+  <!-- Current User Info -->
+  <div class="card" id="user-info-card" style="display: none;">
+    <h2>2️⃣ Your User Information</h2>
+    <div id="user-info"></div>
+    <button onclick="copyUserId()">Copy My User ID</button>
+  </div>
+
+  <!-- Add Admin -->
+  <div class="card" id="add-admin-card" style="display: none;">
+    <h2>3️⃣ Add Admin</h2>
+    <p>To make someone an admin, you need their User ID. They must sign in to the app first.</p>
+
+    <div class="warning-box">
+      <strong>⚠️ Important:</strong> The person must have signed in to Based Bingo at least once before you can add them as admin.
+    </div>
+
+    <label for="admin-user-id"><strong>User ID to add as admin:</strong></label>
+    <input
+      type="text"
+      id="admin-user-id"
+      placeholder="e.g., a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    />
+    <button onclick="addAdmin()">Add as Admin</button>
+
+    <div id="add-admin-result"></div>
+  </div>
+
+  <!-- List Admins -->
+  <div class="card">
+    <h2>4️⃣ Current Admins</h2>
+    <button onclick="loadAdmins()">Refresh Admin List</button>
+    <div id="admin-list-container"></div>
+  </div>
+
+  <!-- Test Admin Access -->
+  <div class="card" id="test-admin-card" style="display: none;">
+    <h2>5️⃣ Test Admin Access</h2>
+    <p>Check if you have admin access to the app.</p>
+    <button onclick="testAdminAccess()">Test My Admin Access</button>
+    <div id="admin-test-result"></div>
+  </div>
+
+  <!-- SQL Helper -->
+  <div class="card">
+    <h2>6️⃣ SQL Helper</h2>
+    <p>Use these SQL commands in the Supabase SQL Editor if needed:</p>
+
+    <h3>Add admin manually:</h3>
+    <pre>INSERT INTO admins (user_id)
+VALUES ('paste-user-id-here');</pre>
+
+    <h3>View all admins:</h3>
+    <pre>SELECT * FROM admins;</pre>
+
+    <h3>Remove an admin:</h3>
+    <pre>DELETE FROM admins
+WHERE user_id = 'paste-user-id-here';</pre>
+
+    <h3>Disable RLS (if having timeout issues):</h3>
+    <pre>ALTER TABLE submissions DISABLE ROW LEVEL SECURITY;</pre>
+
+    <a href="https://app.supabase.com/project/madifhqhwzfotmpzlqel/sql/new" target="_blank">
+      <button class="secondary">Open Supabase SQL Editor</button>
+    </a>
+  </div>
+
+  <script type="module">
+    import { supabase } from './supabase-client.js';
+
+    let currentUser = null;
+
+    // Initialize
+    async function init() {
+      console.log('Initializing admin setup page...');
+
+      // Check current session
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session) {
+        currentUser = session.user;
+        showAuthenticatedState();
+      } else {
+        showUnauthenticatedState();
+      }
+
+      // Listen for auth changes
+      supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          currentUser = session.user;
+          showAuthenticatedState();
+        } else if (event === 'SIGNED_OUT') {
+          currentUser = null;
+          showUnauthenticatedState();
+        }
+      });
+
+      // Load admins initially
+      loadAdmins();
+    }
+
+    function showUnauthenticatedState() {
+      document.getElementById('auth-status').innerHTML = `
+        <div class="warning-box">
+          <strong>⚠️ Not signed in</strong>
+          <p>You need to sign in with X to manage admins.</p>
+        </div>
+      `;
+      document.getElementById('login-btn').style.display = 'inline-block';
+      document.getElementById('logout-btn').style.display = 'none';
+      document.getElementById('user-info-card').style.display = 'none';
+      document.getElementById('add-admin-card').style.display = 'none';
+      document.getElementById('test-admin-card').style.display = 'none';
+    }
+
+    function showAuthenticatedState() {
+      document.getElementById('auth-status').innerHTML = `
+        <div class="success-box">
+          <strong>✅ Signed in as:</strong> @${currentUser.user_metadata?.user_name || 'Unknown'}
+        </div>
+      `;
+      document.getElementById('login-btn').style.display = 'none';
+      document.getElementById('logout-btn').style.display = 'inline-block';
+      document.getElementById('user-info-card').style.display = 'block';
+      document.getElementById('add-admin-card').style.display = 'block';
+      document.getElementById('test-admin-card').style.display = 'block';
+
+      // Show user info
+      document.getElementById('user-info').innerHTML = `
+        <div class="user-info-display">
+          <strong>User ID:</strong><br/>
+          <span id="user-id-text">${currentUser.id}</span>
+        </div>
+        <div class="user-info-display">
+          <strong>X Username:</strong> @${currentUser.user_metadata?.user_name || 'Unknown'}<br/>
+          <strong>X User ID:</strong> ${currentUser.user_metadata?.provider_id || 'Unknown'}<br/>
+          <strong>Email:</strong> ${currentUser.email || 'N/A'}
+        </div>
+      `;
+    }
+
+    // Login button handler
+    document.getElementById('login-btn').addEventListener('click', async () => {
+      await supabase.auth.signInWithOAuth({
+        provider: 'twitter',
+        options: {
+          redirectTo: window.location.href
+        }
+      });
+    });
+
+    // Logout button handler
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+    });
+
+    // Copy user ID
+    window.copyUserId = function() {
+      const userIdText = document.getElementById('user-id-text').textContent;
+      navigator.clipboard.writeText(userIdText);
+      alert('User ID copied to clipboard!');
+    };
+
+    // Add admin
+    window.addAdmin = async function() {
+      const userId = document.getElementById('admin-user-id').value.trim();
+      const resultDiv = document.getElementById('add-admin-result');
+
+      if (!userId) {
+        resultDiv.innerHTML = `
+          <div class="error-box">
+            <strong>❌ Error:</strong> Please enter a User ID
+          </div>
+        `;
+        return;
+      }
+
+      // Validate UUID format
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(userId)) {
+        resultDiv.innerHTML = `
+          <div class="error-box">
+            <strong>❌ Error:</strong> Invalid User ID format. Should be a UUID like: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+          </div>
+        `;
+        return;
+      }
+
+      resultDiv.innerHTML = '<p>Adding admin...</p>';
+
+      try {
+        const { data, error } = await supabase
+          .from('admins')
+          .insert({ user_id: userId })
+          .select();
+
+        if (error) {
+          if (error.code === '23505') {
+            resultDiv.innerHTML = `
+              <div class="warning-box">
+                <strong>⚠️ Already an admin:</strong> This user is already in the admins table.
+              </div>
+            `;
+          } else {
+            resultDiv.innerHTML = `
+              <div class="error-box">
+                <strong>❌ Error:</strong> ${error.message}
+              </div>
+            `;
+          }
+        } else {
+          resultDiv.innerHTML = `
+            <div class="success-box">
+              <strong>✅ Success!</strong> User has been added as admin.
+            </div>
+          `;
+          document.getElementById('admin-user-id').value = '';
+          loadAdmins();
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `
+          <div class="error-box">
+            <strong>❌ Error:</strong> ${error.message}
+          </div>
+        `;
+      }
+    };
+
+    // Load admins
+    window.loadAdmins = async function() {
+      const container = document.getElementById('admin-list-container');
+      container.innerHTML = '<p>Loading admins...</p>';
+
+      try {
+        const { data, error } = await supabase
+          .from('admins')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          container.innerHTML = `
+            <div class="error-box">
+              <strong>❌ Error loading admins:</strong> ${error.message}
+            </div>
+          `;
+          return;
+        }
+
+        if (!data || data.length === 0) {
+          container.innerHTML = `
+            <div class="warning-box">
+              <strong>⚠️ No admins found</strong>
+              <p>There are currently no admins configured. Add one above!</p>
+            </div>
+          `;
+          return;
+        }
+
+        const adminsList = data.map(admin => `
+          <div class="admin-item">
+            <div>
+              <strong>User ID:</strong> ${admin.user_id}<br/>
+              <small>Added: ${new Date(admin.created_at).toLocaleString()}</small>
+            </div>
+            <button class="secondary" onclick="removeAdmin('${admin.user_id}')">Remove</button>
+          </div>
+        `).join('');
+
+        container.innerHTML = `
+          <div class="info-box">
+            <strong>📊 Total Admins:</strong> ${data.length}
+          </div>
+          <ul class="admin-list">
+            ${adminsList}
+          </ul>
+        `;
+      } catch (error) {
+        container.innerHTML = `
+          <div class="error-box">
+            <strong>❌ Error:</strong> ${error.message}
+          </div>
+        `;
+      }
+    };
+
+    // Remove admin
+    window.removeAdmin = async function(userId) {
+      if (!confirm('Are you sure you want to remove this admin?')) {
+        return;
+      }
+
+      try {
+        const { error } = await supabase
+          .from('admins')
+          .delete()
+          .eq('user_id', userId);
+
+        if (error) {
+          alert('Error removing admin: ' + error.message);
+        } else {
+          alert('Admin removed successfully!');
+          loadAdmins();
+        }
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    };
+
+    // Test admin access
+    window.testAdminAccess = async function() {
+      const resultDiv = document.getElementById('admin-test-result');
+      resultDiv.innerHTML = '<p>Testing admin access...</p>';
+
+      if (!currentUser) {
+        resultDiv.innerHTML = `
+          <div class="error-box">
+            <strong>❌ Not signed in</strong>
+          </div>
+        `;
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('admins')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .maybeSingle();
+
+        if (error) {
+          resultDiv.innerHTML = `
+            <div class="error-box">
+              <strong>❌ Error:</strong> ${error.message}
+            </div>
+          `;
+        } else if (data) {
+          resultDiv.innerHTML = `
+            <div class="success-box">
+              <strong>✅ You are an admin!</strong>
+              <p>The "Admin Panel" button should appear on the main app.</p>
+              <p><a href="/" style="color: white; text-decoration: underline;">Go to Based Bingo →</a></p>
+            </div>
+          `;
+        } else {
+          resultDiv.innerHTML = `
+            <div class="warning-box">
+              <strong>⚠️ Not an admin</strong>
+              <p>You are not in the admins table. Add yourself using your User ID above.</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `
+          <div class="error-box">
+            <strong>❌ Error:</strong> ${error.message}
+          </div>
+        `;
+      }
+    };
+
+    // Initialize on load
+    init();
+  </script>
+</body>
+</html>
