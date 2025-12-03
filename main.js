@@ -302,7 +302,8 @@ async function handleSubmit() {
       setTimeout(() => reject(new Error('Database insert timed out after 10 seconds')), 10000);
     });
 
-    // Try without .single() first to see if that's the issue
+    // Insert without .select() to avoid RLS SELECT permission hang
+    // We'll manually construct the data object from what we inserted
     const insertPromise = supabase
       .from('submissions')
       .insert({
@@ -311,15 +312,21 @@ async function handleSubmit() {
         x_user_id: currentUser.user_metadata?.provider_id,
         tweet_url: tweetUrl,
         letter: nextLetter
-      })
-      .select();
+      });
 
     console.log('🔵 Waiting for database response (10s timeout)...');
-    const result = await Promise.race([insertPromise, timeoutPromise]);
+    const { error } = await Promise.race([insertPromise, timeoutPromise]);
     console.log('🔵 Database call completed!');
 
-    const { data: dataArray, error } = result;
-    const data = dataArray && dataArray.length > 0 ? dataArray[0] : null;
+    // Manually create the data object since we're not using .select()
+    const data = error ? null : {
+      user_id: currentUser.id,
+      x_username: currentUser.user_metadata?.user_name || xUsername.replace('@', ''),
+      x_user_id: currentUser.user_metadata?.provider_id,
+      tweet_url: tweetUrl,
+      letter: nextLetter,
+      created_at: new Date().toISOString()
+    };
 
     console.log('🔵 Database response - data:', data);
     console.log('🔵 Database response - error:', error);
